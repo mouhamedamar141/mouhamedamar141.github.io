@@ -90,7 +90,7 @@ cv:
           - Implemented value iteration, policy iteration, Q-learning, SARSA, DQN, Double DQN, REINFORCE, and PPO.
           - Repository: https://github.com/mouhamedamar141/rl-algorithms
 
-      - name: Mini RLHF Pipeline: SFT, Reward Modeling, and PPO
+      - name: Mini RLHF Pipeline -> SFT, Reward Modeling, and PPO
         date: "2026"
         highlights:
           - Explored supervised fine-tuning, Bradley-Terry reward modeling, PPO optimization, and KL regularization.
