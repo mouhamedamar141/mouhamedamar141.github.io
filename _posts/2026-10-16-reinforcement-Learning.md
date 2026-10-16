@@ -1,10 +1,10 @@
 ---
 layout: post
-title: Reinforcement Learning: From Foundations to Modern Policy Optimization for Large Language Models
+title: "Reinforcement Learning: From Foundations to Modern Policy Optimization for Large Language Models"
 date: 2026-10-16
-description: A comprehensive mathematical guide to reinforcement learning, from MDPs and policy gradients to PPO, RLHF, DPO, GRPO, and RLVR for LLM post-training
-tags: reinforcement-learning policy-gradients PPO RLHF DPO GRPO RLVR LLMs
-categories: Reinforcement Learning
+description: "A comprehensive mathematical guide to reinforcement learning, from MDPs and policy gradients to PPO, RLHF, DPO, GRPO, and RLVR for LLM post-training."
+tags: [reinforcement-learning, policy-gradients, PPO, RLHF, DPO, GRPO, RLVR, LLMs]
+categories: [Reinforcement Learning]
 ---
 
 # Reinforcement Learning: From Foundations to Modern Policy Optimization for Large Language Models
@@ -12,7 +12,6 @@ categories: Reinforcement Learning
 **Author:** Mouhamed Amar
 
 **Subtitle:** A comprehensive guide to reinforcement learning theory, from Markov decision processes and Bellman equations to policy gradients, PPO, RLHF, DPO, GRPO, and verifiable-reward training for large language models.
-
 
 ## Abstract
 
