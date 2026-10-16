@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RL avancé : du DQN au RLHF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<script>window.MathJax={tex:{inlineMath:[['$','$']],displayMath:[['$$','$$']]},svg:{fontCache:'global'}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+<style>
+:root{--bg:#eef1f6;--sf:#fff;--ink:#14213d;--mute:#5b6781;--line:#d3d9e6;--acc:#3a4fd7;--soft:#e3e7fb;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1524;--sf:#18203a;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2b3556;--acc:#8c9bff;--soft:#252f5c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1524;--sf:#18203a;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2b3556;--acc:#8c9bff;--soft:#252f5c;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:56px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.65}
+nav{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 12px;z-index:5}
+nav a{white-space:nowrap;color:var(--ink);text-decoration:none;font-size:.85rem;padding:5px 10px;border-radius:99px;background:var(--sf);border:1px solid var(--line)}
+main{max-width:700px;margin:0 auto;padding:18px 16px 56px}
+h1{font-size:1.65rem;margin:6px 0;letter-spacing:-.01em}h2{font-size:1.25rem;margin:36px 0 6px}h3{font-size:1.02rem;margin:18px 0 4px}
+p,li{font-size:.98rem}.mute{color:var(--mute)}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;max-width:100%;padding:4px 0}
+.box{background:var(--sf);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:8px 14px;margin:10px 0}
+.demo{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.demo h3{margin:0 0 6px}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:.9rem;margin:8px 0}.ctl input{width:100%}
+button{font:inherit;font-weight:600;padding:9px 14px;border:0;border-radius:10px;background:var(--acc);color:#fff;cursor:pointer;margin:4px 6px 0 0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#0f1524}}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+svg.pl{width:100%;height:auto;display:block;background:var(--bg);border-radius:8px}
+.out{font-size:.9rem;color:var(--mute);margin:6px 0 0}
+table{border-collapse:collapse;width:100%;font-size:.88rem;display:block;overflow-x:auto}td,th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+</style></head><body>
+<nav><a href="#rap">Rappels</a><a href="#dqn">DQN</a><a href="#pg">Policy gradient</a><a href="#ppo">PPO</a><a href="#sac">SAC</a><a href="#mb">Model-based</a><a href="#off">Offline</a><a href="#rlhf">RLHF/DPO</a></nav>
+<main>
+<h1>RL avancé : du DQN au RLHF</h1>
+<p class="mute">Suite du cours de base. Notation : $s$ état, $a$ action, $r$ récompense, $\gamma$ facteur d'actualisation, $\pi_\theta$ politique paramétrée.</p>
+
+<h2 id="rap">1. Rappels essentiels</h2>
+<p>Retour : $G_t=\sum_{k\ge 0}\gamma^k r_{t+k+1}$. Les fonctions de valeur vérifient les équations de Bellman :</p>
+$$V^\pi(s)=\sum_a \pi(a|s)\sum_{s'}P(s'|s,a)\big[r+\gamma V^\pi(s')\big],\qquad Q^*(s,a)=\mathbb E\big[r+\gamma\max_{a'}Q^*(s',a')\big]$$
+<p>L'opérateur d'optimalité $\mathcal T$ est une <b>contraction</b> de rapport $\gamma$ en norme sup : $\|\mathcal T Q-\mathcal T Q'\|_\infty\le\gamma\|Q-Q'\|_\infty$. Le théorème du point fixe garantit donc la convergence de l'itération de valeur. Avec des réseaux de neurones, cette garantie disparaît : c'est la « triade mortelle » (approximation de fonction + bootstrapping + off-policy).</p>
+
+<h2 id="dqn">2. Deep Q-Network (DQN)</h2>
+<p>On approxime $Q_\theta(s,a)$ par un réseau et on minimise l'erreur TD sur des transitions tirées d'un <i>replay buffer</i> $\mathcal D$, avec un <i>réseau cible</i> $\bar\theta$ mis à jour lentement :</p>
+$$\mathcal L(\theta)=\mathbb E_{(s,a,r,s')\sim\mathcal D}\Big[\big(r+\gamma\max_{a'}Q_{\bar\theta}(s',a')-Q_\theta(s,a)\big)^2\Big]$$
+<p>Le buffer décorrèle les échantillons ; le réseau cible stabilise la cible de régression. Le $\max$ introduit un biais de surestimation, corrigé par <b>Double DQN</b> :</p>
+$$y=r+\gamma\,Q_{\bar\theta}\big(s',\arg\max_{a'}Q_\theta(s',a')\big)$$
+<p>Autres améliorations : <i>dueling</i> $Q(s,a)=V(s)+A(s,a)-\frac1{|\mathcal A|}\sum_{a'}A(s,a')$, replay priorisé (échantillonner selon l'erreur TD), <i>n-step returns</i>. Limite : actions discrètes seulement.</p>
+
+<h2 id="pg">3. Policy gradient et acteur-critique</h2>
+<p>On maximise $J(\theta)=\mathbb E_{\tau\sim\pi_\theta}[R(\tau)]$. Avec l'astuce du log ($\nabla p=p\,\nabla\log p$), les termes de dynamique $P(s'|s,a)$ disparaissent du gradient car ils ne dépendent pas de $\theta$ :</p>
+$$\nabla_\theta J=\mathbb E_{\tau\sim\pi_\theta}\Big[\sum_t\nabla_\theta\log\pi_\theta(a_t|s_t)\,\Psi_t\Big]$$
+<p>où $\Psi_t$ peut valoir $G_t$ (REINFORCE), $G_t-b(s_t)$ (avec baseline), ou l'avantage $A^\pi=Q^\pi-V^\pi$. Toute baseline $b(s)$ est sans biais car $\mathbb E_a[\nabla\log\pi(a|s)]=0$, et elle réduit la variance. En pratique, un <b>critique</b> $V_\phi$ estime la valeur, et on calcule l'avantage par <b>GAE</b> :</p>
+$$\delta_t=r_t+\gamma V_\phi(s_{t+1})-V_\phi(s_t),\qquad \hat A_t=\sum_{l\ge0}(\gamma\lambda)^l\,\delta_{t+l}$$
+<p>$\lambda=0$ donne le TD à un pas (biais élevé, faible variance) ; $\lambda=1$ donne Monte-Carlo (sans biais, forte variance).</p>
+
+<h2 id="ppo">4. TRPO et PPO</h2>
+<p>Un gros pas de gradient peut détruire la politique. TRPO maximise un objectif de substitution sous contrainte de région de confiance :</p>
+$$\max_\theta\ \mathbb E\Big[\tfrac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)}\hat A\Big]\quad\text{s.c.}\quad \mathbb E_s\big[D_{KL}(\pi_{\theta_{old}}\|\pi_\theta)\big]\le\delta$$
+<p>PPO remplace la contrainte par un <b>clipping</b> du ratio $\rho_t(\theta)=\frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{old}}(a_t|s_t)}$ :</p>
+$$L^{\text{CLIP}}(\theta)=\mathbb E_t\Big[\min\big(\rho_t\hat A_t,\ \operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat A_t\big)\Big]$$
+$$L(\theta)=L^{\text{CLIP}}-c_1\,(V_\phi(s_t)-V_t^{\text{targ}})^2+c_2\,\mathcal H[\pi_\theta]$$
+<div class="demo"><h3>Démo : le clipping de PPO</h3>
+<p class="mute" style="margin:0">Trait plein : objectif PPO. Pointillés : objectif non clippé $\rho A$.</p>
+<div class="ctl"><label for="pe">$\epsilon$</label><input id="pe" type="range" min="0.05" max="0.5" step="0.01" value="0.2"><span id="pev">0.20</span></div>
+<button id="pp">Avantage A &gt; 0</button><button class="alt" id="pn">Avantage A &lt; 0</button>
+<svg class="pl" viewBox="0 0 300 160" id="ps" role="img" aria-label="Objectif PPO en fonction du ratio"></svg>
+<p class="out" id="po"></p></div>
+<p>Lecture : si $A>0$, on ne profite pas d'un ratio au-delà de $1+\epsilon$ ; si $A<0$, on ne s'éloigne pas en deçà de $1-\epsilon$. Le gradient est nul dans la zone clippée, d'où la stabilité.</p>
+
+<h2 id="sac">5. Contrôle continu : SAC et TD3</h2>
+<p><b>SAC</b> maximise la récompense plus l'entropie de la politique (RL à entropie maximale) :</p>
+$$J(\pi)=\sum_t\mathbb E_{(s_t,a_t)\sim\pi}\Big[r(s_t,a_t)+\alpha\,\mathcal H\big(\pi(\cdot|s_t)\big)\Big]$$
+<p>Deux critiques et le minimum des deux pour limiter la surestimation ; cible « soft » avec $a'\sim\pi(\cdot|s')$ :</p>
+$$y=r+\gamma\Big(\min_{i=1,2}Q_{\bar\theta_i}(s',a')-\alpha\log\pi(a'|s')\Big),\qquad \mathcal L_\pi=\mathbb E\big[\alpha\log\pi(a|s)-\min_iQ_{\theta_i}(s,a)\big]$$
+<p>L'astuce de reparamétrisation $a=\tanh(\mu_\theta(s)+\sigma_\theta(s)\odot\xi),\ \xi\sim\mathcal N(0,I)$ rend l'actor différentiable. $\alpha$ peut être ajusté automatiquement vers une entropie cible. <b>TD3</b> est déterministe et combine critiques jumelles, mise à jour retardée de l'acteur et lissage de la cible.</p>
+
+<h2 id="mb">6. RL basé sur un modèle</h2>
+<p>On apprend $\hat P_\phi(s'|s,a)$ et $\hat r_\phi(s,a)$ par régression sur les données réelles, puis on s'en sert pour planifier ou générer des données. Intérêt : meilleure efficacité en échantillons, essentielle en robotique réelle.</p>
+<table><tr><th>Approche</th><th>Principe</th></tr>
+<tr><td>Dyna</td><td>Mélanger transitions réelles et simulées par le modèle pour entraîner une politique model-free</td></tr>
+<tr><td>MPC / MCTS</td><td>Planifier en ligne sur l'horizon, exécuter la première action, replanifier</td></tr>
+<tr><td>Dreamer</td><td>Modèle latent $z_{t+1}\sim p_\phi(z_{t+1}|z_t,a_t)$ ; politique apprise « dans l'imagination »</td></tr>
+<tr><td>MuZero</td><td>Modèle appris uniquement pour ce qui sert à planifier (valeur, politique, récompense)</td></tr></table>
+<p>Difficulté centrale : les erreurs du modèle <b>s'accumulent avec l'horizon</b> et la politique exploite les failles du modèle. Remèdes : rollouts courts, ensembles de modèles pour mesurer l'incertitude.</p>
+
+<h2 id="off">7. RL hors ligne (offline)</h2>
+<p>On apprend à partir d'un jeu de données fixe $\mathcal D$, sans interaction. Le piège : l'<b>erreur d'extrapolation</b>. Le $\max_{a'}Q$ choisit des actions absentes des données, où $Q$ est surestimée. Deux familles de solutions :</p>
+<p><b>CQL</b> pénalise les $Q$ élevés hors données :</p>
+$$\min_Q\ \alpha\Big(\mathbb E_{s\sim\mathcal D}\big[\log\textstyle\sum_a\exp Q(s,a)\big]-\mathbb E_{(s,a)\sim\mathcal D}\big[Q(s,a)\big]\Big)+\mathcal L_{TD}(Q)$$
+<p><b>IQL</b> évite d'évaluer des actions hors données via une régression par expectile $L_2^\tau(u)=|\tau-\mathbb 1(u<0)|\,u^2$ avec $\tau>0{,}5$. Référence simple : le <i>behavior cloning</i>, $\max_\theta\mathbb E_{(s,a)\sim\mathcal D}[\log\pi_\theta(a|s)]$.</p>
+
+<h2 id="rlhf">8. RLHF, DPO et GRPO</h2>
+<h3>Modèle de récompense (Bradley–Terry)</h3>
+<p>Pour une paire de réponses $y_w\succ y_l$ à un prompt $x$ :</p>
+$$P(y_w\succ y_l|x)=\sigma\big(r_\phi(x,y_w)-r_\phi(x,y_l)\big),\qquad \mathcal L_{RM}=-\mathbb E\log\sigma\big(r_\phi(x,y_w)-r_\phi(x,y_l)\big)$$
+<h3>Objectif RLHF avec pénalité KL</h3>
+$$\max_\pi\ \mathbb E_{x,\,y\sim\pi}\big[r(x,y)\big]-\beta\,D_{KL}\big(\pi(\cdot|x)\,\|\,\pi_{ref}(\cdot|x)\big)$$
+<p>Sa solution est $\pi^*(y|x)=\frac1{Z(x)}\pi_{ref}(y|x)\exp\!\big(r(x,y)/\beta\big)$. En l'inversant : $r(x,y)=\beta\log\frac{\pi^*(y|x)}{\pi_{ref}(y|x)}+\beta\log Z(x)$. Le terme $Z(x)$ s'annule dans la différence de Bradley–Terry, d'où la perte <b>DPO</b>, sans modèle de récompense ni boucle RL :</p>
+$$\mathcal L_{DPO}=-\mathbb E\Big[\log\sigma\Big(\beta\log\tfrac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)}-\beta\log\tfrac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}\Big)\Big]$$
+<div class="demo"><h3>Démo : la perte DPO</h3>
+<p class="mute" style="margin:0">$\Delta$ est la marge implicite : $\log\frac{\pi_\theta(y_w)}{\pi_{ref}(y_w)}-\log\frac{\pi_\theta(y_l)}{\pi_{ref}(y_l)}$. Perte : $\log(1+e^{-\beta\Delta})$.</p>
+<div class="ctl"><label for="db">$\beta$</label><input id="db" type="range" min="0.1" max="5" step="0.1" value="1"><span id="dbv">1.0</span>
+<label for="dd">$\Delta$</label><input id="dd" type="range" min="-4" max="4" step="0.1" value="-1"><span id="ddv">-1.0</span></div>
+<svg class="pl" viewBox="0 0 300 160" id="ds" role="img" aria-label="Perte DPO en fonction de la marge"></svg>
+<p class="out" id="do"></p></div>
+<p>Le poids du gradient est $\sigma(-\beta\Delta)$ : DPO apprend surtout des paires où le modèle se trompe encore (marge négative), et peu de celles déjà bien classées.</p>
+<h3>GRPO (sans critique)</h3>
+<p>Pour chaque prompt, on échantillonne un groupe de $G$ réponses de récompenses $r_i$ (souvent vérifiables : réponse mathématique correcte, tests de code réussis) et on normalise dans le groupe :</p>
+$$\hat A_i=\frac{r_i-\operatorname{mean}(r_1,\dots,r_G)}{\operatorname{std}(r_1,\dots,r_G)}$$
+<p>L'objectif reprend le clipping de PPO avec ces avantages, plus une pénalité KL vers $\pi_{ref}$. Pas de réseau de valeur : moins de mémoire, mais une variance qui dépend de la taille du groupe.</p>
+
+<h2>Pour aller plus loin</h2>
+<p>Sutton &amp; Barto (livre gratuit), OpenAI Spinning Up, CS285 (Berkeley) pour le deep RL ; le livre ouvert de Nathan Lambert pour le RLHF. Implémentations de référence : CleanRL et Stable-Baselines3.</p>
+</main>
+<script>
+function g(i){return document.getElementById(i)}
+var A=1;
+function clipD(){var e=+g('pe').value,u='',c='';
+for(var i=0;i<=100;i++){var r=i*.02,l=r*A,cl=Math.min(l,Math.max(1-e,Math.min(1+e,r))*A),x=(r*150).toFixed(1);
+u+=(i?'L':'M')+x+' '+(80-l*35).toFixed(1);c+=(i?'L':'M')+x+' '+(80-cl*35).toFixed(1)}
+g('ps').innerHTML='<line x1="0" y1="80" x2="300" y2="80" stroke="var(--line)"/><line x1="150" y1="0" x2="150" y2="160" stroke="var(--line)" stroke-dasharray="3"/><line x1="'+(150*(1-e))+'" y1="0" x2="'+(150*(1-e))+'" y2="160" stroke="var(--line)"/><line x1="'+(150*(1+e))+'" y1="0" x2="'+(150*(1+e))+'" y2="160" stroke="var(--line)"/><path d="'+u+'" fill="none" stroke="var(--mute)" stroke-dasharray="4 3"/><path d="'+c+'" fill="none" stroke="var(--acc)" stroke-width="2.5"/><text x="152" y="12" font-size="9" fill="var(--mute)">ρ = 1</text><text x="292" y="76" font-size="9" fill="var(--mute)" text-anchor="end">ρ</text>';
+g('pev').textContent=e.toFixed(2);
+g('po').textContent=(A>0?'A > 0 : plateau au-delà de ρ = ':'A < 0 : plateau en deçà de ρ = ')+(A>0?(1+e).toFixed(2):(1-e).toFixed(2))+' (zone où le gradient est nul).'}
+g('pe').oninput=clipD;g('pp').onclick=function(){A=1;clipD()};g('pn').onclick=function(){A=-1;clipD()};clipD();
+function dpo(){var b=+g('db').value,d=+g('dd').value,p='';
+for(var i=0;i<=80;i++){var x=-4+i*.1,l=Math.min(4,Math.log(1+Math.exp(-b*x)));p+=(i?'L':'M')+(150+x*35).toFixed(1)+' '+(150-l*35).toFixed(1)}
+var L=Math.log(1+Math.exp(-b*d)),w=1/(1+Math.exp(b*d)),cy=150-Math.min(4,L)*35;
+g('ds').innerHTML='<line x1="150" y1="0" x2="150" y2="160" stroke="var(--line)"/><line x1="0" y1="150" x2="300" y2="150" stroke="var(--line)"/><path d="'+p+'" fill="none" stroke="var(--acc)" stroke-width="2.5"/><circle cx="'+(150+d*35)+'" cy="'+cy+'" r="5" fill="var(--acc)"/><text x="292" y="146" font-size="9" fill="var(--mute)" text-anchor="end">Δ</text>';
+g('dbv').textContent=b.toFixed(1);g('ddv').textContent=d.toFixed(1);
+g('do').textContent='Perte = '+L.toFixed(3)+' · poids du gradient σ(−βΔ) = '+w.toFixed(3)+(d<0?' (le modèle préfère encore la mauvaise réponse : fort signal).':' (paire déjà bien classée : signal faible).')}
+g('db').oninput=dpo;g('dd').oninput=dpo;dpo();
+</script></body></html>

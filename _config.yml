@@ -2,21 +2,19 @@
 # Site settings
 # -----------------------------------------------------------------------------
 
-title: AI Research in Reinforcement Learning # the website title (if blank, full name will be used instead)
+title: Mouhamed Amar # the website title (if blank, full name will be used instead)
 first_name: Mouhamed
 middle_name: 
 last_name: Amar
 contact_note: >
-  You can even add a little note about which of these is the best way to reach you.
-description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+  Le plus simple est de me contacter via GitHub.
+description: >
+  Mouhamed Amar, chercheur en IA et reinforcement learning. Cours, projets et publications.
 footer_text: >
-  Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
-  Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-  Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
-keywords: jekyll, jekyll-theme, academic-website, portfolio-website # add your own keywords or leave empty
-lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
-icon: ⚛️ # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
+  © Mouhamed Amar. Site propulsé par <a href="https://github.com/alshedivat/al-folio">al-folio</a> et hébergé sur GitHub Pages.
+keywords: reinforcement learning, RLHF, LLM, robot learning, embodied AI, recherche, PhD
+lang: fr # the language of your site (for example: en, fr, cn, ru, etc.)
+icon: 🧠 # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 apple_touch_icon: # image name in /assets/img/ (or a rooted path / absolute URL) used for iOS home-screen bookmarks; needs a real 180x180 PNG, since Safari ignores the emoji favicon above. Left empty, iOS falls back to a screenshot of the page.
 
 url: https://mouhamedamar141.github.io # the base hostname & protocol for your site
@@ -136,8 +134,8 @@ bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: al-folio # blog_name will be displayed in your blog page
-blog_description: a simple whitespace theme for academics
+blog_name: Notes de recherche
+blog_description: RL, LLM et IA appliquée
 permalink: /blog/:year/:title/
 lsi: false # produce an index for related posts
 
@@ -348,7 +346,7 @@ jekyll-archives:
   books:
     enabled: [year, tags, categories] # enables year, tag and category archives (remove if you need to disable one of them).
 
-display_tags: ["formatting", "images", "links", "math", "code", "blockquotes"] # these tags will be displayed on the front page of your blog
+display_tags: ["rl", "llm", "cours"] # these tags will be displayed on the front page of your blog
 display_categories: ["external-services"] # these categories will be displayed on the front page of your blog
 
 # -----------------------------------------------------------------------------
@@ -546,7 +544,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap"
+      fonts: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300..700;1,8..60,300..700&family=JetBrains+Mono:wght@400;500&family=Material+Icons&display=swap"
   highlightjs:
     integrity:
       css:

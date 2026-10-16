@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cours de Reinforcement Learning</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#eef1f6;--sf:#fff;--ink:#14213d;--mute:#5b6781;--line:#d3d9e6;--acc:#3a4fd7;--soft:#e3e7fb;--ok:31,138,91;--ko:192,57,43;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1524;--sf:#18203a;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2b3556;--acc:#8c9bff;--soft:#252f5c;--ok:76,195,138;--ko:255,123,107;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1524;--sf:#18203a;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2b3556;--acc:#8c9bff;--soft:#252f5c;--ok:76,195,138;--ko:255,123,107;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:56px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
+nav{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;padding:8px 12px;z-index:5}
+nav a{white-space:nowrap;color:var(--ink);text-decoration:none;font-size:.85rem;padding:5px 10px;border-radius:99px;background:var(--sf);border:1px solid var(--line)}
+main{max-width:680px;margin:0 auto;padding:18px 16px 56px}
+h1{font-size:1.7rem;margin:6px 0;letter-spacing:-.01em}h2{font-size:1.25rem;margin:34px 0 8px}
+p,li{font-size:.98rem}.mute{color:var(--mute)}
+.f{background:var(--sf);border:1px solid var(--line);border-left:4px solid var(--acc);border-radius:8px;padding:10px 14px;margin:10px 0;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;white-space:pre}
+.demo{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.demo h3{margin:0 0 6px;font-size:1.05rem}
+.ctl{display:grid;grid-template-columns:auto 1fr auto;gap:6px 10px;align-items:center;font-size:.9rem;margin:10px 0}
+.ctl input{width:100%}
+button{font:inherit;font-weight:600;padding:10px 14px;border:0;border-radius:10px;background:var(--acc);color:#fff;cursor:pointer;margin:4px 6px 0 0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) button{color:#0f1524}}
+button.alt{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin:10px 0}
+.c{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:1.3rem;background:var(--bg)}
+.c.w{background:var(--line)}.c.s{outline:2px solid var(--acc)}
+.row{display:grid;grid-template-columns:52px 1fr 90px;gap:8px;align-items:center;font-size:.85rem;margin:5px 0}
+.tr{height:14px;background:var(--bg);border-radius:7px;overflow:hidden}.tr i{display:block;height:100%;background:var(--acc)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;display:block;overflow-x:auto}
+td,th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}th{background:var(--soft)}
+.out{font-size:.9rem;color:var(--mute);margin:6px 0 0}
+</style></head><body>
+<nav><a href="#cadre">Cadre</a><a href="#bellman">Bellman</a><a href="#bandit">Exploration</a><a href="#q">Q-learning</a><a href="#algos">Algos</a><a href="#pg">PPO</a><a href="#rlhf">RLHF</a><a href="#pratique">Pratique</a></nav>
+<main>
+<h1>Cours de Reinforcement Learning</h1>
+<p class="mute">Des bases au RLHF, avec deux démos à manipuler : un bandit et un Q-learning sur grille.</p>
+
+<h2 id="cadre">1. Le cadre : agents, MDP, retour</h2>
+<p>Un <b>agent</b> observe un <b>état</b> s, choisit une <b>action</b> a selon sa <b>politique</b> π(a|s), reçoit une <b>récompense</b> r et passe à l'état s'. Le but n'est pas de maximiser la récompense immédiate, mais le <b>retour</b> cumulé actualisé.</p>
+<div class="f">MDP = (S, A, P, R, γ)
+P(s'|s,a) : dynamique de l'environnement
+G_t = r_{t+1} + γ r_{t+2} + γ² r_{t+3} + …
+Objectif : max_π  E[ G_0 ]</div>
+<p>γ ∈ [0,1[ règle l'horizon : proche de 0, l'agent est myope ; proche de 1, il planifie à long terme. Hypothèse de Markov : l'état contient tout ce qui compte pour prédire la suite.</p>
+
+<h2 id="bellman">2. Fonctions de valeur et Bellman</h2>
+<p>V<sup>π</sup>(s) est le retour attendu depuis s en suivant π ; Q<sup>π</sup>(s,a) est celui obtenu en jouant a puis π.</p>
+<div class="f">V^π(s)  = E_π[ r + γ V^π(s') ]
+Q*(s,a) = E[ r + γ max_a' Q*(s',a') ]     (Bellman d'optimalité)
+TD : Q(s,a) ← Q(s,a) + α [ r + γ max_a' Q(s',a') − Q(s,a) ]</div>
+<p>L'erreur entre crochets est l'<b>erreur TD</b> : la différence entre ce qu'on observe (récompense + estimation du suivant) et ce qu'on croyait. Apprendre = réduire cette erreur, ce qui s'appelle le <i>bootstrapping</i>.</p>
+
+<h2 id="bandit">3. Exploration vs exploitation (démo)</h2>
+<p>Le cas le plus simple : un bandit à 5 bras, sans état. Chaque bras donne une récompense bruitée de moyenne inconnue. Avec ε = 0 l'agent se fige souvent sur un mauvais bras ; avec ε trop grand il gaspille ses essais.</p>
+<div class="demo"><h3>Bandit ε-greedy</h3>
+<div class="ctl"><label for="be">ε</label><input id="be" type="range" min="0" max="1" step="0.01" value="0.1"><span id="bev">0.10</span></div>
+<div id="bd"></div>
+<button id="b10">Jouer 10</button><button id="b200">Jouer 200</button><button class="alt" id="br">Nouveau bandit</button>
+<p class="out" id="bo"></p></div>
+<p class="mute">À essayer : ε = 0 sur plusieurs nouveaux bandits, puis ε = 0,1. Le regret mesure ce que tu perds par rapport au meilleur bras.</p>
+
+<h2 id="q">4. Q-learning sur grille (démo)</h2>
+<p>L'agent part de la case entourée (en bas à gauche). ★ rapporte +10, ✕ coûte −10, chaque pas coûte −0,1, les cases grises sont des murs. Entraîne-le et regarde la valeur max de Q (couleur) et la meilleure action (flèche) se propager depuis le but.</p>
+<div class="demo"><h3>Q-learning tabulaire</h3>
+<div class="ctl"><label for="qa">α</label><input id="qa" type="range" min="0.05" max="1" step="0.05" value="0.5"><span id="qav">0.5</span>
+<label for="qg">γ</label><input id="qg" type="range" min="0" max="0.99" step="0.01" value="0.95"><span id="qgv">0.95</span>
+<label for="qe">ε</label><input id="qe" type="range" min="0" max="1" step="0.05" value="0.2"><span id="qev">0.2</span></div>
+<div class="grid" id="gr"></div>
+<button id="t1">1 épisode</button><button id="t50">50 épisodes</button><button class="alt" id="qr">Réinitialiser</button>
+<p class="out" id="qo"></p></div>
+<p class="mute">À essayer : γ = 0,5 (l'agent voit moins loin), ou ε = 0 dès le début (il explore mal et peut ne jamais trouver le but).</p>
+
+<h2 id="algos">5. Carte des algorithmes</h2>
+<table><tr><th>Famille</th><th>Idée</th><th>Exemples</th></tr>
+<tr><td>Basée valeur</td><td>Apprendre Q puis agir en greedy</td><td>Q-learning, SARSA, DQN (replay buffer + réseau cible)</td></tr>
+<tr><td>Policy gradient</td><td>Optimiser π directement</td><td>REINFORCE, A2C, PPO, TRPO</td></tr>
+<tr><td>Acteur-critique continu</td><td>Politique + Q, actions continues</td><td>DDPG, TD3, SAC</td></tr>
+<tr><td>Model-based</td><td>Apprendre un modèle du monde</td><td>Dyna, Dreamer, MuZero</td></tr>
+<tr><td>Hors ligne / imitation</td><td>Apprendre sur des données fixes</td><td>Behavior cloning, CQL, IQL</td></tr></table>
+<p><b>On-policy</b> (SARSA, PPO) : on apprend sur les données de la politique courante. <b>Off-policy</b> (Q-learning, SAC) : on peut réutiliser d'anciennes données, donc plus économe en échantillons.</p>
+
+<h2 id="pg">6. Policy gradient et PPO</h2>
+<div class="f">∇J(θ) = E[ ∇ log π_θ(a|s) · A(s,a) ]      (théorème du policy gradient)
+A = Q − V  (avantage)   ; baseline = réduire la variance sans biais
+GAE(λ) : λ=0 → TD (biais+, variance−) ; λ=1 → Monte-Carlo
+PPO : L = E[ min( ρ·A , clip(ρ, 1−ε, 1+ε)·A ) ],  ρ = π_new / π_old</div>
+<p>Le clipping empêche des mises à jour trop grandes : c'est la raison de la stabilité de PPO. <b>SAC</b> ajoute un terme d'entropie à l'objectif, ce qui favorise l'exploration et la robustesse en contrôle continu.</p>
+
+<h2 id="rlhf">7. RLHF, DPO et LLM</h2>
+<p>Pipeline classique : (1) fine-tuning supervisé (SFT) ; (2) un <b>modèle de récompense</b> appris sur des comparaisons humaines « A préféré à B » ; (3) optimisation de la politique (PPO) avec une pénalité KL vers le modèle de référence pour ne pas dériver.</p>
+<div class="f">max_π E[ r(x,y) ] − β · KL( π || π_ref )</div>
+<p><b>DPO</b> réécrit cet objectif en une perte supervisée sur des paires (préférée, rejetée), sans modèle de récompense explicite ni boucle RL. <b>GRPO</b> évite le critique en comparant les réponses d'un même groupe, et est très utilisé pour le raisonnement avec récompenses vérifiables.</p>
+
+<h2 id="pratique">8. Pièges et mise en pratique</h2>
+<ul><li><b>Reward hacking</b> : l'agent exploite une faille de la récompense. Teste toujours le comportement, pas seulement la courbe.</li>
+<li><b>Variance</b> : plusieurs seeds (au moins 5) avant de conclure ; les courbes d'un seul run trompent.</li>
+<li><b>Hyperparamètres</b> : learning rate, γ, normalisation des observations et des récompenses comptent autant que l'algorithme.</li>
+<li><b>Robot learning</b> : écart simulation/réel, domain randomization, récompenses denses vs éparses.</li></ul>
+<p><b>Outils</b> : Gymnasium (environnements), Stable-Baselines3 et CleanRL (implémentations de référence), tout fonctionne sur CPU pour les petits environnements, et Colab/Kaggle pour le reste.</p>
+<p><b>Lectures</b> : Sutton &amp; Barto <i>Reinforcement Learning: An Introduction</i> (gratuit en ligne), OpenAI Spinning Up, cours CS285 de Berkeley.</p>
+</main>
+<script>
+var $=function(i){return document.getElementById(i)};
+function rn(){var s=0;for(var i=0;i<12;i++)s+=Math.random();return s-6}
+function am(a){var m=Math.max.apply(null,a),c=[];a.forEach(function(v,i){if(v===m)c.push(i)});return c[Math.floor(Math.random()*c.length)]}
+/* Bandit */
+var mu,est,cnt,tot,n;
+function bR(){mu=[0,0,0,0,0].map(function(){return Math.random()*2-.5});est=[0,0,0,0,0];cnt=[0,0,0,0,0];tot=0;n=0;bD()}
+function bP(k){var e=+$('be').value;for(var j=0;j<k;j++){var a=Math.random()<e?Math.floor(Math.random()*5):am(est),r=mu[a]+rn()*.7;cnt[a]++;est[a]+=(r-est[a])/cnt[a];tot+=r;n++}bD()}
+function bD(){var h='';for(var i=0;i<5;i++){var w=Math.max(0,Math.min(1,(est[i]+1)/4))*100;h+='<div class="row"><span>Bras '+(i+1)+'</span><div class="tr"><i style="width:'+w+'%"></i></div><span>'+cnt[i]+' tirages'+(n?' · μ '+mu[i].toFixed(2):'')+'</span></div>'}
+$('bd').innerHTML=h;var best=Math.max.apply(null,mu),reg=n*best-cnt.reduce(function(s,c,i){return s+c*mu[i]},0);
+$('bo').textContent=n?'Tirages : '+n+' · récompense totale : '+tot.toFixed(1)+' · regret : '+reg.toFixed(1)+' · meilleur bras : '+(mu.indexOf(best)+1):'Aucun tirage pour l\'instant.'}
+$('be').oninput=function(){$('bev').textContent=(+this.value).toFixed(2)};
+$('b10').onclick=function(){bP(10)};$('b200').onclick=function(){bP(200)};$('br').onclick=bR;bR();
+/* Q-learning */
+var W=6,H=4,D=[[0,-1],[1,0],[0,1],[-1,0]],AR=['↑','→','↓','←'],wall={'2,1':1,'2,2':1},G='5,0',P='5,1',Q,ep;
+function qR(){Q=[];for(var y=0;y<H;y++){Q[y]=[];for(var x=0;x<W;x++)Q[y][x]=[0,0,0,0]}ep=0;qD()}
+function qT(k){var al=+$('qa').value,g=+$('qg').value,e=+$('qe').value;
+for(var i=0;i<k;i++){var x=0,y=3;for(var t=0;t<200;t++){var a=Math.random()<e?Math.floor(Math.random()*4):am(Q[y][x]),nx=x+D[a][0],ny=y+D[a][1];
+if(nx<0||ny<0||nx>=W||ny>=H||wall[nx+','+ny]){nx=x;ny=y}var key=nx+','+ny,r=-.1,term=false;
+if(key===G){r=10;term=true}else if(key===P){r=-10;term=true}
+Q[y][x][a]+=al*(r+(term?0:g*Math.max.apply(null,Q[ny][nx]))-Q[y][x][a]);x=nx;y=ny;if(term)break}ep++}qD()}
+function qD(){var h='';for(var y=0;y<H;y++)for(var x=0;x<W;x++){var k=x+','+y,q=Q[y][x],m=Math.max.apply(null,q),c='c',t='',s='';
+if(wall[k])c+=' w';else if(k===G)t='★';else if(k===P)t='✕';else{if(Math.max.apply(null,q)!==Math.min.apply(null,q))t=AR[q.indexOf(m)];
+var v=Math.min(1,Math.abs(m)/10)*.8;s='background:rgba('+(m>=0?'var(--ok)':'var(--ko)')+','+v.toFixed(2)+')'}
+if(x===0&&y===3)c+=' s';h+='<div class="'+c+'" style="'+s+'">'+t+'</div>'}
+$('gr').innerHTML=h;$('qo').textContent='Épisodes entraînés : '+ep}
+['qa','qg','qe'].forEach(function(i){$(i).oninput=function(){$(i+'v').textContent=this.value}});
+$('t1').onclick=function(){qT(1)};$('t50').onclick=function(){qT(50)};$('qr').onclick=qR;qR();
+</script></body></html>
