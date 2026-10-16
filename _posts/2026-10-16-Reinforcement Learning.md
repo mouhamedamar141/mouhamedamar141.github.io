@@ -14,6 +14,7 @@ featured: true
 
 **Subtitle:** A comprehensive guide to reinforcement learning theory, from Markov decision processes and Bellman equations to policy gradients, PPO, RLHF, DPO, GRPO, and verifiable-reward training for large language models.
 
+
 ## Abstract
 
 Reinforcement learning has evolved from a niche technique for sequential decision-making into a central framework for aligning and fine-tuning large language models. This article provides a complete and self-contained treatment of the mathematical foundations that connect classical reinforcement learning to modern language model post-training.
