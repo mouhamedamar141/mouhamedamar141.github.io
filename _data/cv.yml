@@ -1,26 +1,179 @@
+
 cv:
   name: Mouhamed Amar
-  label: Chercheur en IA, Reinforcement Learning
-  location: Dakar, Sénégal
+  label: AI Researcher | Reinforcement Learning & LLM Post-Training
+  location: Dakar, Senegal
+  email: mouhamed141.amar@gmail.com
+  phone: "+221 77 364 54 43"
   image: ""
-  summary: Diplômé du M2 Intelligence Artificielle et Big Data (ESP / UCAD), en recherche d'un doctorat en reinforcement learning, robot learning et embodied AI.
+  summary: >
+    AI researcher and recent graduate with a Master's degree in Artificial
+    Intelligence and Big Data from École Supérieure Polytechnique,
+    Université Cheikh Anta Diop (ESP/UCAD), Senegal. Interested in pursuing
+    doctoral research in Reinforcement Learning, Robot Learning, Embodied AI,
+    and LLM post-training, with a focus on sequential decision-making,
+    imitation learning, and intelligent agents.
 
   social_networks:
     - network: GitHub
       username: mouhamedamar141
+    - network: LinkedIn
+      username: mouhamed-amar-403a0a2a2
+    - network: Hugging Face
+      username: Mouhamedamar
 
   sections:
     Education:
       - institution: École Supérieure Polytechnique, Université Cheikh Anta Diop
-        location: Dakar, Sénégal
-        area: Intelligence Artificielle et Big Data
+        location: Dakar, Senegal
+        area: Artificial Intelligence and Big Data
         studyType: Master 2
-        end_date: 2026
+        end_date: "2026"
         highlights:
-          - Mémoire sur SDLC-AI, un cadre d'ingénierie du cycle de vie des systèmes d'IA, en collaboration avec l'UMMISCO.
+          - "Master's thesis: SDLC-AI — A Universal 11-Phase Engineering Framework for AI System Lifecycle Management."
+          - Research internship conducted at UMMISCO.
 
-    Skills:
-      - label: Machine learning
-        details: Reinforcement learning, LLM, PyTorch
-      - label: Outils
-        details: Python, uv, Colab, Kaggle
+      - institution: Université Cheikh Anta Diop de Dakar
+        location: Dakar, Senegal
+        area: Computer Science
+        studyType: Bachelor's degree
+        end_date: "2024"
+
+    Research Interests:
+      - label: Reinforcement Learning
+        details: >
+          Policy gradients, value-based methods, PPO, reward optimization,
+          and reinforcement learning for language models.
+      - label: Robot Learning
+        details: >
+          Imitation learning, Behavior Cloning, Action Chunking Transformer
+          (ACT), and learning-based robotic manipulation.
+      - label: Embodied AI
+        details: >
+          Intelligent agents, perception-action loops, sequential decision-making,
+          and vision-language-action systems.
+      - label: LLM Post-Training
+        details: >
+          Supervised fine-tuning, RLHF, reward modeling, preference optimization,
+          and reinforcement learning with verifiable rewards.
+
+    Research Experience:
+      - company: UMMISCO
+        position: AI System Lifecycle Engineering Research Intern
+        location: Dakar, Senegal
+        start_date: "2026-01"
+        end_date: "2026-06"
+        highlights:
+          - Developed SDLC-AI, an 11-phase framework for the engineering lifecycle of AI systems.
+          - Designed an end-to-end ML lifecycle pipeline using DVC, MLflow, SHAP, Evidently AI, and FastAPI.
+          - Explored model monitoring, data and concept drift detection, explainability, and reproducibility.
+          - Contributed to scientific writing on AI lifecycle engineering and methodology.
+
+      - company: SENELEC
+        position: AI Engineering Intern
+        location: Senegal
+        highlights:
+          - Developed a retrieval-augmented generation (RAG) chatbot for document-based question answering.
+          - Explored hybrid retrieval using semantic search and BM25-style lexical retrieval.
+          - Built API components using FastAPI and worked with local language-model tooling.
+
+      - company: Ministry of Fisheries and Maritime Economy
+        position: AI Engineering Intern
+        location: Senegal
+        highlights:
+          - Contributed to a digital platform for processing fishing permit applications.
+
+    Selected Projects:
+      - name: Reinforcement Learning Algorithms from Scratch
+        date: "2026"
+        highlights:
+          - Implemented value iteration, policy iteration, Q-learning, SARSA, DQN, Double DQN, REINFORCE, and PPO.
+          - Repository: https://github.com/mouhamedamar141/rl-algorithms
+
+      - name: Mini RLHF Pipeline: SFT, Reward Modeling, and PPO
+        date: "2026"
+        highlights:
+          - Explored supervised fine-tuning, Bradley-Terry reward modeling, PPO optimization, and KL regularization.
+          - Investigated reward evolution and potential reward-hacking behavior.
+          - Repository: https://github.com/mouhamedamar141/mini-RLHF-pipeline
+
+      - name: LLM from Scratch: Architectures and Optimizers
+        date: "2026"
+        highlights:
+          - Implemented and studied tokenization, positional encodings, attention mechanisms, normalization, and Mixture-of-Experts.
+          - Compared optimization methods including SGD, Adam, AdamW, Lion, and Muon.
+          - Repository: https://github.com/mouhamedamar141/lm-from-scratch-architectures-and-optimizers
+
+      - name: Action Chunking Transformer on ALOHA
+        date: "2026"
+        highlights:
+          - Explored chunked action prediction and temporal ensembling for imitation learning in robotic manipulation.
+          - Repository: https://github.com/mouhamedamar141/action-chunking-transformer-Aloha
+
+      - name: Behavior Cloning from Scratch — PushT
+        date: "2026"
+        highlights:
+          - Developed a practical behavior-cloning implementation for a robotic manipulation task.
+          - Repository: https://github.com/mouhamedamar141/BC-pusht
+
+      - name: LLM Supervised Fine-Tuning Pipeline
+        date: "2026"
+        highlights:
+          - Explored instruction tuning, prompt masking, gradient accumulation, learning-rate scheduling, and experiment tracking.
+          - Repository: https://github.com/mouhamedamar141/llm-sft-pipeline
+
+      - name: Medical RAG Multi-Agent System
+        date: "2026"
+        highlights:
+          - Combined dense and lexical retrieval, Reciprocal Rank Fusion, Neo4j, and multi-agent workflows for French-language medical question answering.
+          - Repository: https://github.com/mouhamedamar141/Assistant_Medical
+
+      - name: Agentic Vision-Language Model for Maritime Monitoring
+        date: "2026"
+        highlights:
+          - Explored a vision-language application for maritime monitoring in the context of a Liquid AI hackathon.
+          - Repository: https://github.com/mouhamedamar141/agentic-vlm-maritime-monitoring
+
+    Technical Skills:
+      - label: Reinforcement Learning
+        details: >
+          Q-learning, SARSA, DQN, Double DQN, REINFORCE, PPO, actor-critic,
+          policy gradients, reward modeling, RLHF, RLVR, and preference optimization.
+      - label: LLMs and Post-Training
+        details: >
+          Transformer architectures, supervised fine-tuning, LoRA, QLoRA,
+          quantization, tokenization, attention mechanisms, and language-model evaluation.
+      - label: Robot Learning and Embodied AI
+        details: >
+          Imitation learning, Behavior Cloning, ACT, robotic manipulation,
+          LeRobot, and introductory work with robot-learning environments.
+      - label: Machine Learning
+        details: >
+          PyTorch, deep learning, computer vision, NLP, model evaluation,
+          and experimental analysis.
+      - label: AI Systems and MLOps
+        details: >
+          RAG, hybrid retrieval, agentic workflows, FastAPI, DVC, MLflow,
+          SHAP, Evidently AI, Git, and GitHub Actions.
+      - label: Programming
+        details: Python, SQL, Bash, Git, and LaTeX.
+      - label: Computing Environments
+        details: uv, Google Colab, Kaggle, and Hugging Face.
+
+    Certifications and Training:
+      - bullet: Hugging Face — Deep Reinforcement Learning, AI Agents, and LLM fine-tuning.
+      - bullet: DeepLearning.AI — Deep Learning, Machine Learning, Natural Language Processing, and PyTorch.
+      - bullet: Stanford University — Graduate-level coursework in Reinforcement Learning, Deep Learning, and Imitation Learning.
+
+    Competitions and Community:
+      - bullet: Participated in AI challenges, including Zindi and the African Trust & Safety LLM Challenge.
+      - bullet: Created educational content and learning resources for French-speaking AI and machine-learning learners.
+      - bullet: Designed a 10-session curriculum for an AI club.
+
+    Languages:
+      - label: French
+        details: Native
+      - label: Wolof
+        details: Native
+      - label: English
+        details: Professional working proficiency
