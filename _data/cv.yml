@@ -97,7 +97,7 @@ cv:
           - Investigated reward evolution and potential reward-hacking behavior.
           - Repository: https://github.com/mouhamedamar141/mini-RLHF-pipeline
 
-      - name: LLM from Scratch: Architectures and Optimizers
+      - name: LLM from Scratch Architectures and Optimizers
         date: "2026"
         highlights:
           - Implemented and studied tokenization, positional encodings, attention mechanisms, normalization, and Mixture-of-Experts.
