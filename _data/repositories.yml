@@ -1,7 +1,15 @@
+
 github_users:
   - mouhamedamar141
 
 repo_description_lines_max: 2
 
 github_repos:
-  - mouhamedamar141/mouhamedamar141.github.io
+  - mouhamedamar141/rl-algorithms
+  - mouhamedamar141/mini-RLHF-pipeline
+  - mouhamedamar141/action-chunking-transformer-Aloha
+  - mouhamedamar141/BC-pusht
+  - mouhamedamar141/lm-from-scratch-architectures-and-optimizers
+  - mouhamedamar141/llm-sft-pipeline
+  - mouhamedamar141/Assistant_Medical
+  - mouhamedamar141/agentic-vlm-maritime-monitoring

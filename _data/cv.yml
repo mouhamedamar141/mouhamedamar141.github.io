@@ -57,7 +57,7 @@ cv:
           Supervised fine-tuning, RLHF, reward modeling, preference optimization,
           and reinforcement learning with verifiable rewards.
 
-    Research Experience:
+    Work Experience:
       - company: UMMISCO
         position: AI System Lifecycle Engineering Research Intern
         location: Dakar, Senegal
@@ -83,7 +83,7 @@ cv:
         highlights:
           - Contributed to a digital platform for processing fishing permit applications.
 
-    Selected Projects:
+    Projects:
       - name: Reinforcement Learning Algorithms from Scratch
         date: "2026"
         highlights:
@@ -171,9 +171,9 @@ cv:
       - bullet: Designed a 10-session curriculum for an AI club.
 
     Languages:
-      - label: French
-        details: Native
-      - label: Wolof
-        details: Native
-      - label: English
-        details: Professional working proficiency
+      - name: French
+        level: Native
+      - name: Wolof
+        level: Native
+      - name: English
+        level: Professional working proficiency
