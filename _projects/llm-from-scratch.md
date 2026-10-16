@@ -1,4 +1,3 @@
-
 ---
 layout: page
 title: "LLM from Scratch: Architectures and Optimizers"

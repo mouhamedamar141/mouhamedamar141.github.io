@@ -1,4 +1,3 @@
-
 ---
 layout: page
 title: "Behavior Cloning from Scratch: PushT"

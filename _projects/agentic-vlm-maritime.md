@@ -1,4 +1,3 @@
-
 ---
 layout: page
 title: "Agentic Vision-Language Model for Maritime Monitoring"

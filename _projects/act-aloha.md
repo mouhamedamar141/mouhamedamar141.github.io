@@ -1,4 +1,3 @@
-
 ---
 layout: page
 title: "Action Chunking Transformer on ALOHA"

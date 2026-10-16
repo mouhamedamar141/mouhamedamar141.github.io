@@ -1,4 +1,3 @@
-
 ---
 layout: page
 title: "Medical RAG Multi-Agent System"

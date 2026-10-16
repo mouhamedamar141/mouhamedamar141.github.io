@@ -1,4 +1,3 @@
-
 ---
 layout: page
 title: "Reinforcement Learning Algorithms from Scratch"
