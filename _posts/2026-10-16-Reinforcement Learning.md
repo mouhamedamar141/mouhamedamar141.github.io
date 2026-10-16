@@ -1,11 +1,10 @@
 ---
 layout: post
-title: "Reinforcement Learning: From Foundations to Modern Policy Optimization for Large Language Models"
+title: Reinforcement Learning: From Foundations to Modern Policy Optimization for Large Language Models
 date: 2026-10-16
-description: "A comprehensive mathematical guide to reinforcement learning, from MDPs and policy gradients to PPO, RLHF, DPO, GRPO, and RLVR for LLM post-training."
-tags: [reinforcement-learning, policy-gradients, PPO, RLHF, DPO, GRPO, RLVR, LLMs]
-categories: [Reinforcement Learning]
-featured: true
+description: A comprehensive mathematical guide to reinforcement learning, from MDPs and policy gradients to PPO, RLHF, DPO, GRPO, and RLVR for LLM post-training
+tags: reinforcement-learning policy-gradients PPO RLHF DPO GRPO RLVR LLMs
+categories: Reinforcement Learning
 ---
 
 # Reinforcement Learning: From Foundations to Modern Policy Optimization for Large Language Models
@@ -1792,3 +1791,4 @@ The methods surveyed here, including REINFORCE, PPO, RLHF, DPO, RLVR, and GRPO, 
 [25] Ethayarajh, K., Xu, W., Muennighoff, N., et al. (2024). KTO: Model Alignment as Prospect Theoretic Optimization. arXiv:2402.01306.
 
 [26] Hong, J., Lee, N., & Thorne, J. (2024). ORPO: Monolithic Preference Optimization without Reference Model. Proceedings of EMNLP 2024, 11170–11189.
+
