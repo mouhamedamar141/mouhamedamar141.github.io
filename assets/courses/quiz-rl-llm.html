@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz RL &amp; LLM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#eef1f6;--surface:#fff;--ink:#14213d;--mute:#5b6781;--line:#d3d9e6;--acc:#3a4fd7;--accsoft:#e3e7fb;--ok:#1f8a5b;--oksoft:#dcf3e8;--ko:#c0392b;--kosoft:#fbe3e0;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1524;--surface:#18203a;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2b3556;--acc:#8c9bff;--accsoft:#252f5c;--ok:#4cc38a;--oksoft:#16362b;--ko:#ff7b6b;--kosoft:#3d1f1f;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1524;--surface:#18203a;--ink:#e8ecf8;--mute:#9aa6c4;--line:#2b3556;--acc:#8c9bff;--accsoft:#252f5c;--ok:#4cc38a;--oksoft:#16362b;--ko:#ff7b6b;--kosoft:#3d1f1f;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+main{max-width:640px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 18px;font-size:.95rem}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{flex:1;padding:11px 8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tab[aria-pressed="true"]{color:#0f1524}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.meta{display:flex;justify-content:space-between;align-items:center;color:var(--mute);font-size:.9rem;margin-bottom:10px}
+.curve{width:100%;height:56px;display:block;margin-bottom:14px}
+.q{font-size:1.2rem;font-weight:600;line-height:1.35;margin:0 0 14px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:12px 14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;font:inherit;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--acc)}
+.opt:disabled{cursor:default}
+.opt.ok{background:var(--oksoft);border-color:var(--ok)}
+.opt.ko{background:var(--kosoft);border-color:var(--ko)}
+.fb{margin-top:14px;padding:12px 14px;border-left:4px solid var(--acc);background:var(--accsoft);border-radius:6px;font-size:.95rem}
+.fb strong{display:block;margin-bottom:2px}
+.btn{margin-top:14px;padding:12px 18px;border:0;border-radius:10px;background:var(--acc);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#0f1524}}
+.btn.alt{background:transparent;color:var(--ink);border:1px solid var(--line);margin-left:8px}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.big{font-size:2.4rem;font-weight:700;margin:4px 0}
+.miss{margin:12px 0 0;padding:0;list-style:none;font-size:.92rem}
+.miss li{padding:8px 0;border-top:1px solid var(--line)}
+.miss b{color:var(--ok)}
+</style>
+</head>
+<body>
+<main>
+<h1>Quiz RL &amp; LLM</h1>
+<p class="sub">Réponds, vois la correction tout de suite, et regarde ta courbe de récompense monter.</p>
+<div class="tabs">
+<button class="tab" id="t-rl" aria-pressed="true">Reinforcement Learning</button>
+<button class="tab" id="t-llm" aria-pressed="false">LLM</button>
+</div>
+<div class="card" id="app"></div>
+</main>
+<script>
+var DECKS={
+rl:[
+{q:"Dans l'équation de Bellman, que contrôle le facteur d'actualisation γ ?",o:["Le taux d'apprentissage","L'importance des récompenses futures par rapport aux immédiates","La probabilité d'exploration","La taille du batch"],a:1,e:"γ proche de 0 rend l'agent myope ; proche de 1, il valorise le long terme."},
+{q:"Q-learning est un algorithme…",o:["on-policy","off-policy","basé sur un modèle","de type policy gradient"],a:1,e:"La cible utilise le max sur les actions suivantes, indépendamment de l'action réellement choisie : il apprend la politique optimale tout en explorant avec une autre."},
+{q:"À quoi sert le clipping dans PPO ?",o:["Limiter la taille des récompenses","Limiter le changement du ratio de politique à chaque mise à jour","Réduire la taille du réseau","Forcer l'exploration"],a:1,e:"Le ratio π_new/π_old est borné (ex. [0,8 ; 1,2]) pour éviter des mises à jour trop grandes et instables."},
+{q:"Pourquoi DQN utilise-t-il un replay buffer et un réseau cible ?",o:["Pour accélérer l'inférence","Pour décorréler les échantillons et stabiliser la cible d'apprentissage","Pour réduire la mémoire","Pour remplacer la récompense"],a:1,e:"Le buffer casse la corrélation temporelle ; le réseau cible évite de « poursuivre sa propre queue »."},
+{q:"Dans REINFORCE, à quoi sert une baseline ?",o:["Augmenter le biais","Réduire la variance sans introduire de biais","Remplacer la récompense","Accélérer l'environnement"],a:1,e:"Soustraire une baseline qui ne dépend pas de l'action laisse l'espérance du gradient inchangée mais en réduit la variance."},
+{q:"SAC (Soft Actor-Critic) maximise…",o:["La récompense seule","La récompense plus un bonus d'entropie","L'erreur TD","La log-vraisemblance des démonstrations"],a:1,e:"Le terme d'entropie encourage l'exploration et la robustesse."},
+{q:"Lequel de ces algorithmes est basé sur un modèle du monde (model-based) ?",o:["DQN","PPO","Dreamer","SAC"],a:2,e:"Dreamer apprend un modèle latent de l'environnement et planifie/apprend dans son « imagination »."},
+{q:"Dans GAE, que règle le paramètre λ ?",o:["Le taux d'apprentissage","Le compromis biais/variance de l'estimation de l'avantage","La taille du buffer","Le coefficient d'entropie"],a:1,e:"λ=0 donne l'estimateur TD (biais élevé, variance faible) ; λ=1 donne Monte-Carlo (l'inverse)."}
+],
+llm:[
+{q:"Quelle est la complexité de la self-attention en fonction de la longueur de séquence n ?",o:["O(n)","O(n log n)","O(n²)","O(2ⁿ)"],a:2,e:"Chaque token est comparé à tous les autres : une matrice n×n de scores."},
+{q:"Pourquoi divise-t-on les scores d'attention par √d_k ?",o:["Pour économiser de la mémoire","Pour éviter que le softmax sature et que les gradients disparaissent","Pour normaliser la longueur","Pour ajouter du bruit"],a:1,e:"Sans cela, les produits scalaires grandissent avec d_k et le softmax devient quasi one-hot."},
+{q:"À quoi sert le KV cache à l'inférence ?",o:["À stocker les poids","À éviter de recalculer les clés et valeurs des tokens déjà générés","À compresser le vocabulaire","À augmenter la température"],a:1,e:"Chaque nouveau token ne calcule que sa propre requête/clé/valeur et réutilise le passé."},
+{q:"Comment fonctionne le BPE (Byte-Pair Encoding) ?",o:["Il découpe en caractères uniquement","Il fusionne itérativement les paires de symboles les plus fréquentes","Il apprend un embedding par phrase","Il utilise des règles grammaticales"],a:1,e:"On part des octets/caractères et on fusionne les paires les plus fréquentes jusqu'à la taille de vocabulaire voulue."},
+{q:"RoPE (Rotary Position Embedding) encode la position en…",o:["Ajoutant un vecteur appris à l'entrée","Appliquant une rotation aux vecteurs q et k selon la position","Concaténant l'indice du token","Masquant les tokens lointains"],a:1,e:"Le produit q·k ne dépend alors que de la distance relative entre les tokens."},
+{q:"Que fait LoRA lors du fine-tuning ?",o:["Il réentraîne tous les poids","Il gèle les poids et entraîne des matrices de faible rang ajoutées","Il supprime des couches","Il quantifie en 1 bit"],a:1,e:"ΔW = B·A avec un petit rang r : beaucoup moins de paramètres à entraîner et à stocker."},
+{q:"Quelle est la différence clé entre DPO et RLHF avec PPO ?",o:["DPO n'utilise pas de données de préférence","DPO optimise directement sur les préférences, sans modèle de récompense explicite ni boucle RL","DPO ne peut pas être utilisé sur des LLM","DPO exige plus de GPU"],a:1,e:"DPO réécrit l'objectif RLHF en une perte supervisée sur des paires préférée/rejetée."},
+{q:"Que se passe-t-il quand la température tend vers 0 ?",o:["La sortie devient plus aléatoire","La sortie devient quasi déterministe (choix du token le plus probable)","Le modèle s'arrête","Le contexte s'allonge"],a:1,e:"Le softmax devient très pointu : on se rapproche du décodage glouton."}
+]};
+var app=document.getElementById('app'),S={};
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function start(k){
+ S={k:k,i:0,score:0,hist:[0],done:false,miss:[],qs:DECKS[k].map(function(q){return{q:q.q,e:q.e,o:shuffle(q.o.map(function(t,n){return{t:t,ok:n===q.a}}))}})};
+ document.getElementById('t-rl').setAttribute('aria-pressed',k==='rl');
+ document.getElementById('t-llm').setAttribute('aria-pressed',k==='llm');
+ render();
+}
+function curve(){
+ var n=S.qs.length,W=300,H=56,p=S.hist.map(function(v,i){return(4+i*(W-8)/n).toFixed(1)+','+(H-4-v*(H-8)/n).toFixed(1)}).join(' ');
+ var last=p.split(' ').pop().split(',');
+ return '<svg class="curve" viewBox="0 0 300 56" preserveAspectRatio="none" role="img" aria-label="Courbe de récompense cumulée"><line x1="4" y1="52" x2="296" y2="52" stroke="var(--line)"/><polyline fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" points="'+p+'"/><circle cx="'+last[0]+'" cy="'+last[1]+'" r="4" fill="var(--acc)"/></svg>';
+}
+function render(){
+ var n=S.qs.length;
+ if(S.done){
+  var pct=Math.round(S.score/n*100),msg=pct===100?"Sans faute !":pct>=70?"Solide, continue comme ça.":pct>=40?"Pas mal, relis les corrections ci-dessous.":"Bon départ : rejoue après avoir lu les corrections.";
+  app.innerHTML='<div class="meta"><span>Résultat</span></div>'+curve()+'<div class="big">'+S.score+' / '+n+'</div><p>'+msg+'</p>'+
+   (S.miss.length?'<ul class="miss">'+S.miss.map(function(m){return'<li>'+m.q+'<br><b>'+m.good+'</b> — '+m.e+'</li>'}).join('')+'</ul>':'')+
+   '<button class="btn" id="again">Rejouer</button><button class="btn alt" id="other">'+(S.k==='rl'?'Quiz LLM':'Quiz RL')+'</button>';
+  document.getElementById('again').onclick=function(){start(S.k)};
+  document.getElementById('other').onclick=function(){start(S.k==='rl'?'llm':'rl')};
+  return;
+ }
+ var q=S.qs[S.i];
+ app.innerHTML='<div class="meta"><span>Question '+(S.i+1)+' / '+n+'</span><span>Score : '+S.score+'</span></div>'+curve()+
+  '<p class="q">'+q.q+'</p><div class="opts">'+q.o.map(function(o,j){return'<button class="opt" data-j="'+j+'">'+o.t+'</button>'}).join('')+'</div><div id="fb"></div>';
+ Array.prototype.forEach.call(app.querySelectorAll('.opt'),function(b){b.onclick=function(){answer(+b.dataset.j)}});
+}
+function answer(j){
+ var q=S.qs[S.i],good=q.o.filter(function(o){return o.ok})[0].t,right=q.o[j].ok;
+ if(right)S.score++;else S.miss.push({q:q.q,good:good,e:q.e});
+ S.hist.push(S.score);
+ Array.prototype.forEach.call(app.querySelectorAll('.opt'),function(b,n){b.disabled=true;if(q.o[n].ok)b.classList.add('ok');else if(n===j)b.classList.add('ko')});
+ var last=S.i===S.qs.length-1;
+ document.getElementById('fb').innerHTML='<div class="fb"><strong>'+(right?'Correct.':'Pas tout à fait.')+'</strong>'+q.e+'</div><button class="btn" id="next">'+(last?'Voir le résultat':'Question suivante')+'</button>';
+ var nb=document.getElementById('next');nb.focus();
+ nb.onclick=function(){if(last)S.done=true;else S.i++;render()};
+}
+document.getElementById('t-rl').onclick=function(){start('rl')};
+document.getElementById('t-llm').onclick=function(){start('llm')};
+start('rl');
+</script>
+</body>
+</html>
